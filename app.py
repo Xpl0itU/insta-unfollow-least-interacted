@@ -11,7 +11,7 @@ def sleep_random():
 
 
 def get_least_followed():
-    with open("least_followed.json", "r") as f:
+    with open("least_followed.json", "r", encoding="utf-8") as f:
         data = json.load(f)
 
     users = data["users"]
@@ -54,7 +54,7 @@ def main():
         )
 
         try:
-            with open("cookies.json", "r") as f:
+            with open("cookies.json", "r", encoding="utf-8") as f:
                 cookies = json.loads(f.read())
                 context.add_cookies(cookies)
             page = context.new_page()
@@ -73,14 +73,14 @@ def main():
             print("Please login to your Instagram account and press enter.")
             input()
 
-            with open("cookies.json", "w") as f:
+            with open("cookies.json", "w", encoding="utf-8") as f:
                 f.write(json.dumps(context.cookies()))
 
         page.goto(
             "https://i.instagram.com/api/v1/friendships/smart_groups/least_interacted_with/?search_surface=follow_list_page&query=&enable_groups=true&rank_token=e667dad2-ccf4-461a-ba53-d83f9007cc7f"
         )
         content = page.text_content("body")
-        with open("least_followed.json", "w") as f:
+        with open("least_followed.json", "w", encoding="utf-8") as f:
             f.write(content)
 
         least_followed_users = get_least_followed()
