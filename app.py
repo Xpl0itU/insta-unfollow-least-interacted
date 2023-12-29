@@ -2,6 +2,7 @@ import json
 import random
 import time
 from playwright.sync_api import sync_playwright
+from playwright_stealth import stealth_sync
 import json
 
 
@@ -15,7 +16,35 @@ def get_least_followed():
 
 def main():
     with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=False)
+        browser = playwright.chromium.launch(
+            headless=False,
+            args=[
+                "--disable-gpu",
+                "--disable-setuid-sandbox",
+                "--disable-accelerated-2d-canvas",
+                "--no-zygote",
+                "--frame-throttle-fps=10",
+                "--no-sandbox",
+                "--disable-blink-features=AutomationControlled",
+                "--disable-blink-features",
+                "--disable-translate",
+                "--safebrowsing-disable-auto-update",
+                "--disable-sync",
+                "--hide-scrollbars",
+                "--disable-notifications",
+                "--disable-logging",
+                "--disable-permissions-api",
+                "--ignore-certificate-errors",
+                "--proxy-server='direct://'",
+                "--proxy-bypass-list=*",
+                "--host-resolver-rules=MAP www.googletagmanager.com 127.0.0.1, MAP www.google-analytics.com 127.0.0.1, MAP *.facebook.* 127.0.0.1, MAP assets.adobedtm.com 127.0.0.1, MAP s2.adform.net 127.0.0.1",
+                "--no-first-run",
+                "--disable-audio-output",
+                "--disable-canvas-aa",
+                "--disable-gl-drawing-for-tests",
+                "--disable-dev-shm-usage",
+            ],
+        )
         context = browser.new_context(
             user_agent="Instagram 257.1.0.13.119 (iPhone14,3; iOS 16_1; tr_TR; tr-TR; scale=3.00; 1284x2778; 409247554) AppleWebKit/420+"
         )
@@ -25,6 +54,13 @@ def main():
                 cookies = json.loads(f.read())
                 context.add_cookies(cookies)
             page = context.new_page()
+            stealth_sync(page)
+            page.evaluate(
+                "() => { Object.defineProperty(navigator, 'webdriver', { get: () => undefined }) }"
+            )
+            context.add_init_script(
+                "Object.defineProperty(navigator, 'webdriver', { get: () => undefined })"
+            )
         except FileNotFoundError:
             page = context.new_page()
             page.goto("https://www.instagram.com/accounts/login/")
