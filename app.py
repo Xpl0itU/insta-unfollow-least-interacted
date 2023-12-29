@@ -6,6 +6,10 @@ from playwright_stealth import stealth_sync
 import json
 
 
+def sleep_random():
+    time.sleep(random.randint(1, 5))
+
+
 def get_least_followed():
     with open("least_followed.json", "r") as f:
         data = json.load(f)
@@ -84,11 +88,13 @@ def main():
             user = least_followed_users[i]
             page.goto(f"https://www.instagram.com/{user}/")
             page.wait_for_load_state("networkidle")
+            sleep_random()
             page.get_by_text("Following").first.click()
             page.wait_for_load_state("networkidle")
+            sleep_random()
             page.get_by_text("Unfollow").click()
             print(f"Unfollowed {user}")
-            time.sleep(random.randint(1, 5))
+            sleep_random()
 
         context.close()
         browser.close()
