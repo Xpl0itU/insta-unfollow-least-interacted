@@ -43,7 +43,9 @@ def main():
         with open("least_followed.json", "w") as f:
             f.write(content)
 
-        for user in get_least_followed():
+        least_followed_users = get_least_followed()
+        for i in range(random.randint(10, len(least_followed_users))):
+            user = least_followed_users[i]
             page.goto(f"https://www.instagram.com/{user}/")
             page.wait_for_load_state("networkidle")
             page.get_by_text("Following").first.click()
